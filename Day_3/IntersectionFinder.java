@@ -11,21 +11,25 @@ public class IntersectionFinder {
     private String[] cable2;
     private ArrayList<Point> cable1Points;
     private ArrayList<Point> cable2Points;
+    private ArrayList<Point> intersections;
 
     public static void main(String[] args) {
         IntersectionFinder finder = new IntersectionFinder();
-        Point intersection = finder.find();
-        System.out.println("Closest intersection has distance: " + (Math.abs(intersection.x) + Math.abs(intersection.y)));
+        finder.computeIntersections();
+        int distance = finder.closestIntersectionManhattan();
+        System.out.println("Closest intersection by distance: " +  distance);
+        int delay = finder.closestIntersectionDelay();
+        System.out.println("Closest intersection by delay: " + delay);
     }
 
-    private Point find() {
+    private void computeIntersections() {
         loadDescriptions();
-        cable1Points = new ArrayList<Point>();
-        cable2Points = new ArrayList<Point>();
+        cable1Points = new ArrayList<>();
+        cable2Points = new ArrayList<>();
         findTurningPoints(cable1, cable1Points);
         findTurningPoints(cable2, cable2Points);
-        ArrayList<Point> intersections = findIntersection();
-        return findClosestIntersection(intersections);
+        intersections = new ArrayList<>();
+        findIntersections();
     }
 
     private void loadDescriptions() {
@@ -50,19 +54,15 @@ public class IntersectionFinder {
 
             switch (direction) {
                 case "R":
-                    //System.out.println("R");
                     currentX += len;
                     break;
                 case "U":
-                    //System.out.println("U");
                     currentY += len;
                     break;
                 case "L":
-                    //System.out.println("L");
                     currentX -= len;
                     break;
                 case "D":
-                    //System.out.println("D");
                     currentY -= len;
                     break;
             }
@@ -70,8 +70,7 @@ public class IntersectionFinder {
         }
     }
 
-    private ArrayList<Point> findIntersection() {
-        ArrayList<Point> intersection = new ArrayList<>();
+    private void findIntersections() {
 
         for (int i = 0; i < cable1Points.size() - 2; i++) {
             Point cable1point1 = cable1Points.get(i);
@@ -86,21 +85,21 @@ public class IntersectionFinder {
                     if (cable1point1.x < cable1point2.x && cable1point1.x <= cable2point1.x && cable1point2.x >= cable2point1.x) {
                         if (cable2point1.y < cable2point2.y && cable2point1.y <= cable1point1.y && cable2point2.y >= cable1point1.y) {
                             if (cable2point1.x != 0 || cable1point1.y != 0) {
-                                intersection.add(new Point(cable2point1.x, cable1point1.y));
+                                intersections.add(new Point(cable2point1.x, cable1point1.y));
                             }
                         } else if (cable2point1.y > cable2point2.y && cable2point1.y >= cable1point1.y && cable2point2.y <= cable1point1.y) {
                             if (cable2point1.x != 0 || cable1point1.y != 0) {
-                                intersection.add(new Point(cable2point1.x, cable1point1.y));
+                                intersections.add(new Point(cable2point1.x, cable1point1.y));
                             }
                         }
                     } else if (cable1point1.x > cable1point2.x && cable1point1.x >= cable2point1.x && cable1point2.x <= cable2point1.x) {
                         if (cable2point1.y < cable2point2.y && cable2point1.y <= cable1point1.y && cable2point2.y >= cable1point1.y) {
                             if (cable2point1.x != 0 || cable1point1.y != 0) {
-                                intersection.add(new Point(cable2point1.x, cable1point1.y));
+                                intersections.add(new Point(cable2point1.x, cable1point1.y));
                             }
                         } else if (cable2point1.y > cable2point2.y && cable2point1.y >= cable1point1.y && cable2point2.y <= cable1point1.y) {
                             if (cable2point1.x != 0 || cable1point1.y != 0) {
-                                intersection.add(new Point(cable2point1.x, cable1point1.y));
+                                intersections.add(new Point(cable2point1.x, cable1point1.y));
                             }
                         }
                     }
@@ -109,31 +108,30 @@ public class IntersectionFinder {
                     if (cable1point1.y < cable1point2.y && cable1point1.y <= cable2point1.y && cable1point2.y >= cable2point1.y) {
                         if (cable2point1.x < cable2point2.x && cable2point1.x <= cable1point1.x && cable2point2.x >= cable1point1.x) {
                             if (cable1point1.x != 0 || cable2point1.y != 0) {
-                                intersection.add(new Point(cable1point1.x, cable2point1.y));
+                                intersections.add(new Point(cable1point1.x, cable2point1.y));
                             }
                         } else if (cable2point1.x > cable2point2.x && cable2point1.x >= cable1point1.x && cable2point2.x <= cable1point1.x) {
                             if (cable1point1.x != 0 || cable2point1.y != 0) {
-                                intersection.add(new Point(cable1point1.x, cable2point1.y));
+                                intersections.add(new Point(cable1point1.x, cable2point1.y));
                             }
                         }
                     } else if (cable1point1.y > cable1point2.y && cable1point1.y >= cable2point1.y && cable1point2.y <= cable2point1.y) {
                         if (cable2point1.x < cable2point2.x && cable2point1.x <= cable1point1.x && cable2point2.x >= cable1point1.x) {
                             if (cable1point1.x != 0 || cable2point1.y != 0) {
-                                intersection.add(new Point(cable1point1.x, cable2point1.y));
+                                intersections.add(new Point(cable1point1.x, cable2point1.y));
                             }
                         } else if (cable2point1.x > cable2point2.x && cable2point1.x >= cable1point1.x && cable2point2.x <= cable1point1.x) {
                             if (cable1point1.x != 0 || cable2point1.y != 0) {
-                                intersection.add(new Point(cable1point1.x, cable2point1.y));
+                                intersections.add(new Point(cable1point1.x, cable2point1.y));
                             }
                         }
                     }
                 }
             }
         }
-        return intersection;
     }
 
-    private Point findClosestIntersection(ArrayList<Point> intersections) {
+    private int closestIntersectionManhattan() {
         Point closest = intersections.get(0);
         int smallestDistance = Math.abs(closest.x) + Math.abs(closest.y);
 
@@ -141,10 +139,79 @@ public class IntersectionFinder {
             int distance = Math.abs(point.x) + Math.abs(point.y);
             if (distance < smallestDistance) {
                 smallestDistance = distance;
-                closest = point;
             }
         }
-        return closest;
+        return smallestDistance;
     }
 
+    private int closestIntersectionDelay() {
+
+        int smallestDelay = computeDelayToIntersection(intersections.get(0));
+
+        for (Point point: intersections) {
+            int delay = computeDelayToIntersection(point);
+            if (delay < smallestDelay) {
+                smallestDelay = delay;
+            }
+        }
+        return smallestDelay;
+    }
+
+    private int computeDelayToIntersection(Point point) {
+        return computeDelayForOneCable(point, cable1) + computeDelayForOneCable(point, cable2);
+    }
+
+    private int computeDelayForOneCable(Point point, String[] cable) {
+        int cableDelay = 0;
+        int currentX = 0;
+        int currentY = 0;
+        int index = 0;
+        boolean found = false;
+        while (!found) {
+            String cablePath = cable[index];
+            String direction = cablePath.substring(0, 1);
+            Integer len = Integer.parseInt(cablePath.substring(1));
+
+            switch (direction) {
+                case "R":
+                    if (currentY == point.y && point.x > currentX && Math.abs(point.x - currentX) <= len) {
+                        found = true;
+                        cableDelay += Math.abs(point.x - currentX);
+                    } else {
+                        currentX += len;
+                        cableDelay += len;
+                    }
+                    break;
+                case "U":
+                    if (currentX == point.x && point.y > currentY && Math.abs(point.y - currentY) <= len) {
+                        found = true;
+                        cableDelay += Math.abs(point.y - currentY);
+                    } else {
+                        currentY += len;
+                        cableDelay += len;
+                    }
+                    break;
+                case "L":
+                    if (currentY == point.y && point.x < currentX && Math.abs(point.x - currentX ) <= len) {
+                        found = true;
+                        cableDelay += Math.abs(point.x - currentX);
+                    } else {
+                        currentX -= len;
+                        cableDelay += len;
+                    }
+                    break;
+                case "D":
+                    if (currentX == point.x && point.y < currentY && Math.abs(point.y - currentY) <= len) {
+                        found = true;
+                        cableDelay += Math.abs(point.y - currentY);
+                    } else {
+                        currentY -= len;
+                        cableDelay += len;
+                    }
+                    break;
+            }
+            index++;
+        }
+        return cableDelay;
+    }
 }
