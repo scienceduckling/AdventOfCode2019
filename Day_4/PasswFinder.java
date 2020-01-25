@@ -15,14 +15,24 @@ public class PasswFinder {
 
         for (int currentTry = LOWER_LIMIT; currentTry <= UPPER_LIMIT; currentTry++) {
             int[] digits = getDigits(currentTry);
+            int adjacentCount = 0;
             boolean adjacent = false;
             boolean decrease = false;
             for (int digitIndex = 1; digitIndex < DIGITS; digitIndex++) {
                 if (digits[digitIndex] == digits[digitIndex - 1]) {
-                    adjacent = true;
+                    adjacentCount++;
                 } else if (digits[digitIndex] < digits[digitIndex - 1]) {
                     decrease = true;
+                    break;
+                } else {
+                    if (adjacentCount == 1) {
+                        adjacent = true;
+                    }
+                    adjacentCount = 0;
                 }
+            }
+            if (adjacentCount == 1) {
+                adjacent = true;
             }
 
             if (!decrease && adjacent) {
