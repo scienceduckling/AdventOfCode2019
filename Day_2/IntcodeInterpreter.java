@@ -3,6 +3,7 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 enum Opcode {
+    NON  (0),
     ADD  (1),
     MUL  (2),
     HALT (99)
@@ -27,13 +28,18 @@ enum Opcode {
     }
 
     public static Opcode get(int opcode) {
-        return lookup.get(opcode);
+        if (lookup.get(opcode) != null) {
+            return lookup.get(opcode);
+        } else {
+            return Opcode.NON;
+        }
     }
 }
 
 public class IntcodeInterpreter {
 
     private final String INPUT_FILE_PATH = "./input.txt";
+    private final Integer DESIRED_OUTPUT = 19690720;
     private ArrayList<Integer> theTape;
     private Integer headPosition;
     private Opcode currentInstruction;
@@ -43,7 +49,9 @@ public class IntcodeInterpreter {
         interpreter.initMemory();
         interpreter.setInputs(12, 2);
         interpreter.run();
-        interpreter.printTape();
+        System.out.println("Result for inputs 12 and 2 is: " + interpreter.getResult());
+
+        interpreter.findInputs();
     }
 
     private void initMemory() {
@@ -88,10 +96,33 @@ public class IntcodeInterpreter {
 
             headPosition += 4;
             currentInstruction = Opcode.get(theTape.get(headPosition));
+            if (currentInstruction == Opcode.NON) {
+                System.out.println("Program got into undefined state. Halting");
+                break;
+            }
+        }
+    }
+
+    private void findInputs() {
+        search:
+        for (Integer input1 = 0; input1 < 100; input1++) {
+            for (Integer input2 = 0; input2 < 100; input2++) {
+                initMemory();
+                setInputs(input1, input2);
+                run();
+                if (getResult().equals(DESIRED_OUTPUT)) {
+                    System.out.println("Correct inputs for result " + DESIRED_OUTPUT + " are: " + input1 + " and " + input2);
+                    break search;
+                }
+            }
         }
     }
 
     private void printTape() {
         System.out.println(Arrays.toString(theTape.toArray()));
+    }
+
+    private Integer getResult() {
+        return theTape.get(0);
     }
 }
